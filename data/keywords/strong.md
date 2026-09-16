@@ -9,6 +9,7 @@ Put the most important skills first. Include common job-ad aliases on their own 
 ## Spoken languages
 
 - english
+- engelska
 
 ## Core stack
 

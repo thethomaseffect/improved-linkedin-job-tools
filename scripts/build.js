@@ -134,6 +134,91 @@ function markdownToHtml(markdown) {
   return html.join('\n');
 }
 
+const FEATURE_CATALOG = [
+  {
+    env: 'FEATURE_EXPAND_DESCRIPTION',
+    title: 'Expand job descriptions',
+    description: 'Clicks the visible “more” control on the About the job panel so the full posting is searchable.',
+  },
+  {
+    env: 'FEATURE_HIGHLIGHT_SKILLS',
+    title: 'Highlight skills in the posting',
+    description: 'Marks strong matches green, rusty skills yellow, and unwanted terms red.',
+  },
+  {
+    env: 'FEATURE_HIGHLIGHT_JOB_CARDS',
+    title: 'Colour job cards',
+    description: 'Viewed or applied listings get a light red wash; promoted listings get a light yellow wash.',
+  },
+  {
+    env: 'FEATURE_DISMISS_POST_APPLY',
+    title: 'Dismiss the post-apply modal',
+    description: 'Closes “turn your resume into a profile” / “your application was sent” when a Not now button is present.',
+  },
+  {
+    env: 'FEATURE_HIDE_AI_WIDGET',
+    title: 'Hide the AI feedback widget',
+    description: 'Removes the “is this information helpful?” prompt that sits on top of the description.',
+  },
+  {
+    env: 'FEATURE_CONFIRM_APPLIED',
+    title: 'Confirm “did you apply?”',
+    description: 'Always clicks Yes on LinkedIn’s “did you apply for this job?” prompt so the listing is marked as seen.',
+  },
+];
+
+function isFeatureEnabled(value) {
+  if (value == null || String(value).trim() === '') return true;
+  return /^(1|true|yes|on)$/i.test(String(value).trim());
+}
+
+function parseFeatures(fileEnv) {
+  const flags = {};
+  for (const feature of FEATURE_CATALOG) {
+    flags[feature.env] = isFeatureEnabled(fileEnv[feature.env]);
+  }
+  return flags;
+}
+
+function applyFeatureBlocks(template, flags) {
+  const pattern = /\{\{#([A-Z0-9_]+)\}\}([\s\S]*?)\{\{\/\1\}\}/g;
+  let current = template;
+  let previous;
+  do {
+    previous = current;
+    current = current.replace(pattern, (_, key, body) => {
+      if (!(key in flags)) {
+        throw new Error(`Unknown feature block ${key}`);
+      }
+      return flags[key] ? body : '';
+    });
+  } while (current !== previous);
+  return current;
+}
+
+function featureListHtml(flags) {
+  return (
+    '<ul class="feature-list">\n' +
+    FEATURE_CATALOG.map((feature) => {
+      const on = flags[feature.env];
+      const mark = on ? '✓' : '✗';
+      const state = on ? 'Included' : 'Not included';
+      return [
+        `  <li class="${on ? 'on' : 'off'}">`,
+        `    <span class="mark" aria-hidden="true">${mark}</span>`,
+        `    <div>`,
+        `      <span class="visually-hidden">${state}. </span>`,
+        `      <strong>${escapeHtml(feature.title)}</strong>`,
+        `      <code>${escapeHtml(feature.env)}</code>`,
+        `      <span class="desc">${escapeHtml(feature.description)}</span>`,
+        `    </div>`,
+        `  </li>`,
+      ].join('\n');
+    }).join('\n') +
+    '\n</ul>'
+  );
+}
+
 function fill(template, vars) {
   return template.replace(/\{\{\{([A-Z0-9_]+)\}\}\}|\{\{([A-Z0-9_]+)\}\}/g, (_, rawKey, escapedKey) => {
     const key = rawKey || escapedKey;
@@ -142,6 +227,10 @@ function fill(template, vars) {
     }
     return String(vars[key]);
   });
+}
+
+function tidyGeneratedJs(source) {
+  return source.replace(/\n{3,}/g, '\n\n');
 }
 
 function formatJsArray(items) {
@@ -185,6 +274,7 @@ function build() {
   const downloadUrl = joinUrl(siteOrigin, siteBasePath, scriptFilename);
   const repoUrl = `https://github.com/${githubRepository}`;
 
+  const flags = parseFeatures(fileEnv);
   const strong = parseKeywords(read(path.join(DATA, 'keywords', 'strong.md')));
   const rusty = parseKeywords(read(path.join(DATA, 'keywords', 'rusty.md')));
   const unwanted = parseKeywords(read(path.join(DATA, 'keywords', 'unwanted.md')));
@@ -221,6 +311,7 @@ function build() {
     RUSTY_CHIPS: chips(rusty, 'rusty'),
     UNWANTED_CHIPS: chips(unwanted, 'unwanted'),
     SITE_HTML: siteHtml,
+    FEATURE_LIST: featureListHtml(flags),
   };
 
   for (const key of [
@@ -243,19 +334,27 @@ function build() {
   }
 
   const htmlVars = { ...vars };
-  const rawHtmlKeys = new Set(['SITE_HTML', 'STRONG_CHIPS', 'RUSTY_CHIPS', 'UNWANTED_CHIPS']);
+  const rawHtmlKeys = new Set(['SITE_HTML', 'STRONG_CHIPS', 'RUSTY_CHIPS', 'UNWANTED_CHIPS', 'FEATURE_LIST']);
   for (const [key, value] of Object.entries(htmlVars)) {
     if (!rawHtmlKeys.has(key)) htmlVars[key] = escapeHtml(value);
   }
 
   fs.mkdirSync(DIST, { recursive: true });
-  fs.writeFileSync(path.join(DIST, scriptFilename), fill(read(path.join(SRC, 'script.template.js')), vars));
-  fs.writeFileSync(path.join(DIST, 'index.html'), fill(read(path.join(SRC, 'index.template.html')), htmlVars));
+  fs.writeFileSync(
+    path.join(DIST, scriptFilename),
+    tidyGeneratedJs(fill(applyFeatureBlocks(read(path.join(SRC, 'script.template.js')), flags), vars))
+  );
+  fs.writeFileSync(
+    path.join(DIST, 'index.html'),
+    fill(applyFeatureBlocks(read(path.join(SRC, 'index.template.html')), flags), htmlVars)
+  );
   fs.copyFileSync(path.join(SRC, 'styles.css'), path.join(DIST, 'styles.css'));
   fs.copyFileSync(path.join(SRC, 'favicon.svg'), path.join(DIST, 'favicon.svg'));
   fs.writeFileSync(path.join(DIST, '.nojekyll'), '');
 
+  const enabled = FEATURE_CATALOG.filter((feature) => flags[feature.env]).map((feature) => feature.env);
   console.log(`Wrote ${path.relative(ROOT, DIST)} (${strong.length} strong, ${rusty.length} rusty, ${unwanted.length} unwanted)`);
+  console.log(`Features: ${enabled.join(', ') || '(none)'}`);
   console.log(`Install URL: ${downloadUrl}`);
 }
 

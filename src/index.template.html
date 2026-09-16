@@ -35,19 +35,28 @@
   </header>
 
   <main id="main">
+    <section class="features" aria-labelledby="features-heading">
+      <h2 id="features-heading">Features in this build</h2>
+      <p>Each item is compiled into the userscript only when its <code>FEATURE_*</code> flag in <code>.env</code> is on. A tick is included; a cross is left out.</p>
+      {{{FEATURE_LIST}}}
+    </section>
+
     <article class="prose">
       {{{SITE_HTML}}}
     </article>
 
+{{#FEATURE_HIGHLIGHT_SKILLS}}
     <section class="keywords" aria-labelledby="keywords-heading">
       <h2 id="keywords-heading">Keywords in this build</h2>
       <p>These lists are compiled from <code>data/keywords/</code> when the site is built. Fork the repo and edit the markdown to change them.</p>
 
+{{#FEATURE_HIGHLIGHT_JOB_CARDS}}
       <div class="legend">
         <span class="swatch swatch-applied">Viewed / applied cards</span>
         <span class="swatch swatch-promoted">Promoted cards</span>
       </div>
 
+{{/FEATURE_HIGHLIGHT_JOB_CARDS}}
       <h3><span class="chip chip-strong">Strong</span> {{STRONG_COUNT}} terms</h3>
       <div class="chips">
         {{{STRONG_CHIPS}}}
@@ -63,6 +72,7 @@
         {{{UNWANTED_CHIPS}}}
       </div>
     </section>
+{{/FEATURE_HIGHLIGHT_SKILLS}}
   </main>
 
   <footer>

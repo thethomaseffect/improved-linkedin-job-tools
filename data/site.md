@@ -1,14 +1,8 @@
 ## What it does
 
-LinkedIn’s job UI hides useful text, paints over listings you already handled, and interrupts you after every application. This userscript runs only in your browser and only on `linkedin.com`.
+LinkedIn’s job UI hides useful text, paints over listings you already handled, and interrupts you after every application. This userscript runs only in your browser and only on `linkedin.com`. Nothing is sent to a server. There is no account, no analytics, and no LinkedIn API access.
 
-- **Expands the description.** Clicks the visible “more” control on the About the job panel so the full posting is searchable.
-- **Highlights skills in the posting.** Strong matches are green, rusty skills are yellow, and unwanted terms are red. The lists below are the ones baked into this build.
-- **Colours job cards.** Viewed or applied listings get a light red wash; promoted listings get a light yellow wash.
-- **Dismisses the post-apply modal.** Closes “turn your resume into a profile” / “your application was sent” when a **Not now** button is present.
-- **Hides the AI feedback widget.** Removes the “is this information helpful?” prompt that sits on top of the description.
-
-Nothing is sent to a server. There is no account, no analytics, and no LinkedIn API access.
+The ticks and crosses above are this build: each feature is compiled in only when its `FEATURE_*` flag in `.env` is on.
 
 ## Install
 
@@ -24,6 +18,7 @@ After a new deploy, Tampermonkey can pick up updates from this site automaticall
 
 Fork the repository, change the keyword markdown and `.env` values to match **your** skills, then enable GitHub Pages (source: GitHub Actions). Your fork’s Pages URL is the install page for your copy.
 
+- Features: `FEATURE_*` keys in `.env` / `.env.example` (`true` to compile in, `false` to leave out).
 - Keywords: `data/keywords/strong.md`, `rusty.md`, `unwanted.md` — one term per bullet.
 - Script name, colours, version: `.env` (copy from `.env.example`).
 - This page’s copy: `data/site.md`.

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{SITE_TITLE}}</title>
+  <meta name="description" content="{{SITE_TAGLINE}}">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --color-strong-bg: {{COLOR_STRONG_BG}};
+      --color-strong-fg: {{COLOR_STRONG_FG}};
+      --color-rusty-bg: {{COLOR_RUSTY_BG}};
+      --color-rusty-fg: {{COLOR_RUSTY_FG}};
+      --color-unwanted-bg: {{COLOR_UNWANTED_BG}};
+      --color-unwanted-fg: {{COLOR_UNWANTED_FG}};
+      --color-applied: {{COLOR_APPLIED_VIEWED}};
+      --color-promoted: {{COLOR_PROMOTED}};
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="hero">
+    <p class="eyebrow">Tampermonkey userscript · v{{SCRIPT_VERSION}}</p>
+    <h1>{{SITE_TITLE}}</h1>
+    <p class="tagline">{{SITE_TAGLINE}}</p>
+    <p class="hero-actions">
+      <a class="button" href="{{SCRIPT_FILENAME}}">Install userscript</a>
+      <a class="button button-ghost" href="{{REPO_URL}}">View source</a>
+    </p>
+    <p class="hero-note">Requires <a href="https://www.tampermonkey.net/">Tampermonkey</a>. The install file is <code>{{SCRIPT_FILENAME}}</code>.</p>
+  </header>
+
+  <main id="main">
+    <article class="prose">
+      {{{SITE_HTML}}}
+    </article>
+
+    <section class="keywords" aria-labelledby="keywords-heading">
+      <h2 id="keywords-heading">Keywords in this build</h2>
+      <p>These lists are compiled from <code>data/keywords/</code> when the site is built. Fork the repo and edit the markdown to change them.</p>
+
+      <div class="legend">
+        <span class="swatch swatch-applied">Viewed / applied cards</span>
+        <span class="swatch swatch-promoted">Promoted cards</span>
+      </div>
+
+      <h3><span class="chip chip-strong">Strong</span> {{STRONG_COUNT}} terms</h3>
+      <div class="chips">
+        {{{STRONG_CHIPS}}}
+      </div>
+
+      <h3><span class="chip chip-rusty">Rusty</span> {{RUSTY_COUNT}} terms</h3>
+      <div class="chips">
+        {{{RUSTY_CHIPS}}}
+      </div>
+
+      <h3><span class="chip chip-unwanted">Unwanted</span> {{UNWANTED_COUNT}} terms</h3>
+      <div class="chips">
+        {{{UNWANTED_CHIPS}}}
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Built for <strong>{{SCRIPT_AUTHOR}}</strong>. MIT licensed. <a href="{{REPO_URL}}">{{GITHUB_REPOSITORY}}</a></p>
+  </footer>
+</body>
+</html>

@@ -21,14 +21,21 @@
         '#job-details',
         '.jobs-description',
         '.jobs-description__container',
+        '.jobs-description__content',
         '.jobs-description-content__text',
         '.jobs-box__html-content',
         '.job-details-jobs-unified-description__content',
-        '.jobs-search__job-details--container .jobs-description',
+        '.jobs-search__job-details',
+        '.jobs-details',
+        '.job-view-layout',
+        '.scaffold-layout__detail',
         '.description__text',
         'section.description',
-        '.show-more-less-html'
+        '.show-more-less-html',
+        '.inline-show-more-text'
     ].join(', ');
+
+    const ABOUT_THE_JOB_HEADINGS = ['about the job', 'about this job', 'om jobbet'];
 
     function isVisible(el) {
         if (!el || el.disabled) return false;
@@ -42,6 +49,61 @@
             .replace(/\s+/g, ' ')
             .trim()
             .toLowerCase();
+    }
+
+    function headingNorm(el) {
+        return (el.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    function isEllipsisMore(text) {
+        return (
+            text === '… more' ||
+            text === '... more' ||
+            text === '…more' ||
+            text === '...more' ||
+            text === '… mer' ||
+            text === '... mer'
+        );
+    }
+
+    function aboutTheJobCard() {
+        const headings = document.querySelectorAll('h2, h3');
+        for (let i = 0; i < headings.length; i++) {
+            if (ABOUT_THE_JOB_HEADINGS.indexOf(headingNorm(headings[i])) === -1) continue;
+
+            let node = headings[i].parentElement;
+            let fallback = node;
+            for (let d = 0; d < 12 && node && node.id !== 'workspace' && node.tagName !== 'MAIN'; d++) {
+                const buttons = node.querySelectorAll('button, [role="button"]');
+                for (let b = 0; b < buttons.length; b++) {
+                    const t = (buttons[b].innerText || buttons[b].textContent || '')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .toLowerCase();
+                    if (isEllipsisMore(t) || t === 'see more' || t === 'show more' || t === 'visa mer') {
+                        return node;
+                    }
+                }
+                if ((node.innerText || '').length > 200) fallback = node;
+                node = node.parentElement;
+            }
+            return fallback;
+        }
+        return document.querySelector('[id^="JobDetails_AboutTheJob_"]');
+    }
+
+    function descriptionRoots() {
+        const roots = [];
+        const seen = new Set();
+        function add(el) {
+            if (el && !seen.has(el)) {
+                seen.add(el);
+                roots.push(el);
+            }
+        }
+        add(aboutTheJobCard());
+        document.querySelectorAll(JOB_DESCRIPTION_SELECTORS).forEach(add);
+        return roots;
     }
 
 {{#FEATURE_HIGHLIGHT_JOB_CARDS}}
@@ -84,25 +146,60 @@
 
 {{/FEATURE_HIGHLIGHT_SKILLS}}
 {{#FEATURE_EXPAND_DESCRIPTION}}
+    function isCompanyExpand(btn) {
+        const aria = (btn.getAttribute('aria-label') || '').toLowerCase();
+        const nearId = ((btn.closest('[id]') || {}).id || '');
+        return /AboutTheCompany/i.test(nearId) || aria.includes('about the company');
+    }
+
     function isExpandButton(btn) {
-        const text = controlLabel(btn);
-        if (!text) return false;
-        if (text.includes('jobs like this') || text.includes('similar')) return false;
+        if (btn.getAttribute('aria-expanded') === 'true') return false;
+
         const className = String(btn.className || '');
-        if (className.includes('show-more-less') && (text.includes('more') || text.includes('mer'))) return true;
-        return text === 'more' || text === '...more' || text === 'show more' || text === 'see more' || text === 'visa mer';
+        const visibleText = (btn.innerText || btn.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        const aria = (btn.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        const text = (visibleText + ' ' + aria).trim();
+        if (!text) return false;
+
+        if (
+            text.includes('jobs like this') ||
+            text.includes('similar') ||
+            text.includes('learn more') ||
+            text.includes('more options') ||
+            /\b(show less|see less|visa mindre|visa färre)\b/.test(text)
+        ) {
+            return false;
+        }
+
+        const looksLikeMoreControl =
+            className.includes('inline-show-more-text') ||
+            className.includes('show-more-less') ||
+            className.includes('jobs-description__footer');
+
+        const mentionsMore =
+            isEllipsisMore(visibleText) ||
+            /\b(see more|show more|visa mer)\b/.test(text) ||
+            /(?:^|…|\.{1,3})\s*more\b/.test(visibleText) ||
+            /(?:^|…|\.{1,3})\s*mer\b/.test(visibleText);
+
+        if (looksLikeMoreControl) return mentionsMore || /more|mer/.test(text);
+        return mentionsMore;
     }
 
     function expandDescription() {
-        const containers = document.querySelectorAll(JOB_DESCRIPTION_SELECTORS);
-        for (let c = 0; c < containers.length; c++) {
-            const buttons = containers[c].querySelectorAll('button, [role="button"]');
+        const card = aboutTheJobCard();
+        const scopes = [];
+        if (card) scopes.push(card);
+        const workspace = document.querySelector('#workspace') || document.querySelector('main');
+        if (workspace) scopes.push(workspace);
+
+        for (let s = 0; s < scopes.length; s++) {
+            const buttons = scopes[s].querySelectorAll('button, [role="button"]');
             for (let i = 0; i < buttons.length; i++) {
                 const btn = buttons[i];
-                if (isVisible(btn) && isExpandButton(btn)) {
-                    btn.click();
-                    return;
-                }
+                if (!isVisible(btn) || !isExpandButton(btn) || isCompanyExpand(btn)) continue;
+                btn.click();
+                return;
             }
         }
     }
@@ -327,8 +424,7 @@
     }
 
     function highlightSkills() {
-        const containers = document.querySelectorAll(JOB_DESCRIPTION_SELECTORS);
-        containers.forEach(container => {
+        descriptionRoots().forEach(container => {
             const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null, false);
             let node;
             while ((node = walker.nextNode())) {

@@ -163,7 +163,7 @@ const FEATURE_CATALOG = [
   {
     env: 'FEATURE_CONFIRM_APPLIED',
     title: 'Confirm “did you apply?”',
-    description: 'Always clicks Yes on LinkedIn’s “did you apply for this job?” prompt so the listing is marked as seen.',
+    description: 'Clicks Yes whenever LinkedIn asks if you applied, then dismisses the leftover thanks/track popup.',
   },
 ];
 

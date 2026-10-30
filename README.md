@@ -46,7 +46,7 @@ Toggle these in `.env` / `.env.example`. `true` compiles the feature into the us
 | `FEATURE_HIGHLIGHT_JOB_CARDS` | Colours viewed, applied, and promoted cards |
 | `FEATURE_DISMISS_POST_APPLY` | Dismisses the post-apply “turn your resume into a profile” modal |
 | `FEATURE_HIDE_AI_WIDGET` | Hides the “is this information helpful?” widget |
-| `FEATURE_CONFIRM_APPLIED` | Clicks **Yes** on “did you apply for this job?” so LinkedIn marks the listing as seen |
+| `FEATURE_CONFIRM_APPLIED` | Clicks **Yes** whenever LinkedIn asks if you applied, then dismisses the leftover popup |
 
 ## Keyword tiers
 

@@ -52,9 +52,9 @@ Toggle these in `.env` / `.env.example`. `true` compiles the feature into the us
 
 The lists shipped here follow the resume at `thethomaseffect/resume`:
 
-- **Strong** (green) — `skillCatalog` entries with `tier: core`, plus English and a few role-shape phrases (`full-stack`, `backend`, `event-driven`).
-- **Rusty** (yellow) — `tier: also` skills that still show up in job ads, including C# / .NET / ASP.NET from the Microsoft internship.
-- **Unwanted** (red) — Swedish (`svenska`) because it is marked insufficient for day-to-day work, plus stacks to skip (C++, PHP, Elixir, Ruby, Swift, Kotlin, Scala). Go/Golang are rusty, not unwanted.
+- **Strong** (green) — `skillCatalog` `tier: core`, English, and headline phrases from the public resume (`full-stack`, `cloud-native`, `refactoring`, `frontend`, `tech lead`).
+- **Rusty** (yellow) — `tier: also` skills that still show up in job ads, including C# / .NET / ASP.NET from the Microsoft internship. Go/Golang stay here even though they are not on the resume.
+- **Unwanted** (red) — Swedish-required phrasing from the cover letter, plus stacks to skip (C++, PHP, Elixir, Ruby, Swift, Kotlin, Scala). C++ and PHP are `tier: also` on the resume but treated as skip.
 
 Job-ad aliases (`js`, `k8s`, `psql`, `ci/cd`) sit next to the canonical name.
 

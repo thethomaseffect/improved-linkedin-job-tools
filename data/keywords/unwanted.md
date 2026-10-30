@@ -6,8 +6,17 @@ Swedish is here because the resume marks it as insufficient for day-to-day work 
 
 ## Spoken languages
 
+Cover letter: English-only roles. Swedish is marked basic / insufficient for day-to-day work.
+
 - swedish
 - svenska
+- flytande svenska
+- fluent swedish
+- swedish required
+- swedish speaking
+- krav på svenska
+- svenska som arbetsspråk
+- svenska i tal och skrift
 
 ## Stacks to skip
 

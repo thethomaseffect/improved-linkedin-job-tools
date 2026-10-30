@@ -67,8 +67,34 @@ Ordered from the resume skill catalogue (`tier: core`, then `rank`).
 
 ## Role shape
 
+From the public resume headline and summary.
+
 - full-stack
 - full stack
 - fullstack
-- event-driven
+- fullstackutvecklare
+- frontend
 - backend
+- event-driven
+- cloud-native
+- cloud native
+- refactoring
+- monitoring
+- ux
+- infrastructure as code
+- iac
+- tech lead
+- team lead
+- consultant
+- mikrotjänster
+- postgres
+- cdn
+- alerting
+
+## AI tooling
+
+Daily practice on the resume (`Cursor`, `Claude`, agents, MCP).
+
+- generative ai
+- claude code
+- agent hooks

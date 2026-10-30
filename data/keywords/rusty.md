@@ -56,6 +56,17 @@ C#, .NET and ASP.NET live here (Microsoft internship) rather than in the unwante
 - docker-compose
 - feature flags
 - tampermonkey
+- linux
+- sql server
+- mssql
+- analytics
+- product analytics
+- a/b testing
+- ab testing
+- planout
+- linked data
+- sparql
+- rdf
 
 ## Quality
 

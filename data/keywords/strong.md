@@ -42,6 +42,7 @@ Ordered from the resume skill catalogue (`tier: core`, then `rank`).
 - cursor
 - claude
 - llm
+- llms
 - microservices
 - e2e
 - qa
@@ -86,15 +87,24 @@ From the public resume headline and summary.
 - tech lead
 - team lead
 - consultant
+- consulting
 - mikrotjänster
 - postgres
 - cdn
 - alerting
+- observability
 
 ## AI tooling
 
-Daily practice on the resume (`Cursor`, `Claude`, agents, MCP).
+Daily practice on the resume (`Cursor`, `Claude`, agents, MCP). Job ads often say `AI`, `LLMs`, `agentic`.
 
 - generative ai
+- genai
 - claude code
 - agent hooks
+- agentic
+- agents
+- agent
+- ai
+- apis
+- api

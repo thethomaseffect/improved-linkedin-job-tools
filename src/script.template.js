@@ -72,7 +72,7 @@
             if (ABOUT_THE_JOB_HEADINGS.indexOf(headingNorm(headings[i])) === -1) continue;
 
             let node = headings[i].parentElement;
-            let fallback = node;
+            let smallestText = null;
             for (let d = 0; d < 12 && node && node.id !== 'workspace' && node.tagName !== 'MAIN'; d++) {
                 const buttons = node.querySelectorAll('button, [role="button"]');
                 for (let b = 0; b < buttons.length; b++) {
@@ -84,26 +84,18 @@
                         return node;
                     }
                 }
-                if ((node.innerText || '').length > 200) fallback = node;
+                if (!smallestText && (node.innerText || '').length > 200) smallestText = node;
                 node = node.parentElement;
             }
-            return fallback;
+            return smallestText || headings[i].parentElement;
         }
         return document.querySelector('[id^="JobDetails_AboutTheJob_"]');
     }
 
     function descriptionRoots() {
-        const roots = [];
-        const seen = new Set();
-        function add(el) {
-            if (el && !seen.has(el)) {
-                seen.add(el);
-                roots.push(el);
-            }
-        }
-        add(aboutTheJobCard());
-        document.querySelectorAll(JOB_DESCRIPTION_SELECTORS).forEach(add);
-        return roots;
+        const card = aboutTheJobCard();
+        if (card) return [card];
+        return Array.prototype.slice.call(document.querySelectorAll(JOB_DESCRIPTION_SELECTORS));
     }
 
 {{#FEATURE_HIGHLIGHT_JOB_CARDS}}
@@ -127,7 +119,7 @@
     function buildRegex(list) {
         if (!list.length) return null;
         const sorted = [...list].sort((a, b) => b.length - a.length);
-        return new RegExp('\\b(' + sorted.map(escapeRegExp).join('|') + ')\\b', 'gi');
+        return new RegExp('(?<![\\p{L}\\p{N}_])(' + sorted.map(escapeRegExp).join('|') + ')(?![\\p{L}\\p{N}_])', 'giu');
     }
 
     function resetAndTest(regex, text) {
@@ -390,7 +382,8 @@
         processedNodes.add(node);
 
         const parent = node.parentNode;
-        if (!parent || ['SCRIPT', 'STYLE', 'MARK', 'TEXTAREA', 'INPUT'].includes(parent.tagName)) return;
+        if (!parent || ['SCRIPT', 'STYLE', 'MARK', 'TEXTAREA', 'INPUT', 'NOSCRIPT'].includes(parent.tagName)) return;
+        if (parent.closest && parent.closest('button, a, [role="button"], nav, svg')) return;
 
         const text = node.nodeValue;
         if (!text || !text.trim()) return;
